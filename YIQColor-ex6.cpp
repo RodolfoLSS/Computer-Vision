@@ -6,83 +6,80 @@
 using namespace cv;
 using namespace std;
 
-Mat nivel_cor(){
+Mat mais_luminancia(Mat imagem){
     
-    Mat imagem = imread("/Users/RodolfoSaldanha/Desktop/opencv-3.2.0/OpenCV/OpenCV/teste.png");//passa a imagem para matriz
-    int largura, altura, i, j, soma;
+    int largura, altura, i, j;
+    float yiq[3];
     largura = imagem.size().width;//pega a largura da imagem
     altura = imagem.size().height;//pega a altura da imagem
     
     //percorrendo a imagem (matriz)
     for(i=0;i<altura;i++){
-        
         for(j=0;j<largura;j++){
-            
-            soma = 0;
             Vec3b bgrPixel = imagem.at<Vec3b>(i,j);//pega o valor em RGB de um pixel
-            soma = bgrPixel.val[2] + bgrPixel.val[1] + bgrPixel.val[0];//soma os valores de cada canal(RGB) do pixel
-            soma = soma/3;
-            //conversao RGB -> YIQ
-            imagem.at<Vec3b>(i,j).val[0] = bgrPixel.val[0]*0.299 + bgrPixel.val[1]*0.587 + bgrPixel.val[2]*0.114; //Y
-            imagem.at<Vec3b>(i,j).val[1] = 0.74*(bgrPixel.val[0]-imagem.at<Vec3b>(i,j).val[0]) - 0.27*(bgrPixel.val[2]-imagem.at<Vec3b>(i,j).val[0]); //I
-            imagem.at<Vec3b>(i,j).val[2] = 0.48*(bgrPixel.val[0]-imagem.at<Vec3b>(i,j).val[0]) - 0.41*(bgrPixel.val[2]-imagem.at<Vec3b>(i,j).val[0]); //Q
+            yiq[0] = bgrPixel.val[0]*0.299 + bgrPixel.val[1]*0.587 + bgrPixel.val[2]*0.114; //Y
+            yiq[0] += 15;
+            yiq[1] = bgrPixel.val[0]*0.596 - bgrPixel.val[1]*0.275 - bgrPixel.val[2]*0.321; //I
+            yiq[2] = bgrPixel.val[0]*0.212 - bgrPixel.val[1]*0.523 + bgrPixel.val[2]*0.311; //Q
+            
+            imagem.at<Vec3b>(i,j).val[0] = yiq[0] + yiq[1]*0.956 + yiq[2]*0.620;// Ajusta R
+            if(imagem.at<Vec3b>(i,j).val[0] < 0)
+                imagem.at<Vec3b>(i,j).val[0] = 0;
+            if(imagem.at<Vec3b>(i,j).val[0] > 255)
+                imagem.at<Vec3b>(i,j).val[0] = 255;
+
+        }
+    }
+    return(imagem);
+}
+
+Mat menos_luminancia(Mat imagem){
+    
+    int largura, altura, i, j;
+    float yiq[3];
+    largura = imagem.size().width;//pega a largura da imagem
+    altura = imagem.size().height;//pega a altura da imagem
+    
+    //percorrendo a imagem (matriz)
+    for(i=0;i<altura;i++){
+        for(j=0;j<largura;j++){
+            Vec3b bgrPixel = imagem.at<Vec3b>(i,j);//pega o valor em RGB de um pixel
+            yiq[0] = bgrPixel.val[0]*0.299 + bgrPixel.val[1]*0.587 + bgrPixel.val[2]*0.114; //Y
+            yiq[0] -= 15;
+            yiq[1] = bgrPixel.val[0]*0.596 - bgrPixel.val[1]*0.275 - bgrPixel.val[2]*0.321; //I
+            yiq[2] = bgrPixel.val[0]*0.212 - bgrPixel.val[1]*0.523 + bgrPixel.val[2]*0.311; //Q
+            
+            imagem.at<Vec3b>(i,j).val[0] = yiq[0] + yiq[1]*0.956 + yiq[2]*0.620;// Ajusta R
+            if(imagem.at<Vec3b>(i,j).val[0] < 0)
+                imagem.at<Vec3b>(i,j).val[0] = 0;
+            if(imagem.at<Vec3b>(i,j).val[0] > 255)
+               imagem.at<Vec3b>(i,j).val[0] = 255;
             
         }
     }
     return(imagem);
 }
 
-Mat mais_escura(Mat imagem){
-    
-    int largura, altura, i, j;
-    largura = imagem.size().width;//pega a largura da imagem
-    altura = imagem.size().height;//pega a altura da imagem
-    
-    //percorrendo a imagem (matriz)
-    for(i=0;i<altura;i++){
-        
-        for(j=0;j<largura;j++){
-            if(imagem.at<Vec3b>(i,j).val[0] >= 15)
-               imagem.at<Vec3b>(i,j).val[0] -= 15; //deixa mais escuro
-        }
-    }
-    return(imagem);
-}
-
-Mat mais_clara(Mat imagem){
-    
-    int largura, altura, i, j;
-    largura = imagem.size().width;//pega a largura da imagem
-    altura = imagem.size().height;//pega a altura da imagem
-    
-    //percorrendo a imagem (matriz)
-    for(i=0;i<altura;i++){
-        
-        for(j=0;j<largura;j++){
-            if(imagem.at<Vec3b>(i,j).val[0] <= 240)
-                imagem.at<Vec3b>(i,j).val[0] += 15; //deixa mais clara
-        }
-    }
-    return(imagem);
-}
 
 int main(){
     
-    Mat imagem = nivel_cor();
+    Mat imagem = imread("/Users/RodolfoSaldanha/Desktop/opencv-3.2.0/OpenCV/OpenCV/teste.png");//passa a imagem para matriz
+    imshow("Luminancia", imagem);//exibe a imagem
+    waitKey(10);
     int op =-1;
     
     while(1){
         
-        imshow("Nivel de cinza", imagem);//exibe a imagem
-        waitKey(10);
-        cout << "1 -- Mais claro?\n2 -- Mais escuro?\n0 -- Sair\n";
+        cout << "1 -- Mais luminancia?\n2 -- Menos luminancia?\n0 -- Sair\n";
         cin >> op;
         if(op == 0)
             break;
         else if(op == 1)
-            imagem = mais_clara(imagem);
+            imagem = mais_luminancia(imagem);
         else if(op == 2)
-            imagem = mais_escura(imagem);
+            imagem = menos_luminancia(imagem);
+        imshow("Luminancia", imagem);//exibe a imagem
+        waitKey(10);
     }
     
     return 0;
