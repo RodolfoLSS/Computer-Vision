@@ -9,7 +9,7 @@ using namespace std;
 Mat mais_luminancia(Mat imagem){
     
     int largura, altura, i, j;
-    float yiq[3];
+    double yiq[3], bgr[3];
     largura = imagem.size().width;//pega a largura da imagem
     altura = imagem.size().height;//pega a altura da imagem
     
@@ -17,17 +17,37 @@ Mat mais_luminancia(Mat imagem){
     for(i=0;i<altura;i++){
         for(j=0;j<largura;j++){
             Vec3b bgrPixel = imagem.at<Vec3b>(i,j);//pega o valor em RGB de um pixel
-            yiq[0] = bgrPixel.val[0]*0.299 + bgrPixel.val[1]*0.587 + bgrPixel.val[2]*0.114; //Y
-            yiq[0] += 15;
-            yiq[1] = bgrPixel.val[0]*0.596 - bgrPixel.val[1]*0.275 - bgrPixel.val[2]*0.321; //I
-            yiq[2] = bgrPixel.val[0]*0.212 - bgrPixel.val[1]*0.523 + bgrPixel.val[2]*0.311; //Q
             
-            imagem.at<Vec3b>(i,j).val[0] = yiq[0] + yiq[1]*0.956 + yiq[2]*0.620;// Ajusta R
-            if(imagem.at<Vec3b>(i,j).val[0] < 0)
-                imagem.at<Vec3b>(i,j).val[0] = 0;
-            if(imagem.at<Vec3b>(i,j).val[0] > 255)
-                imagem.at<Vec3b>(i,j).val[0] = 255;
-
+            bgr[0] = bgrPixel.val[0];
+            bgr[1] = bgrPixel.val[1];
+            bgr[2] = bgrPixel.val[2];
+            
+            yiq[0] = (double)(bgr[0]*0.299 + bgr[1]*0.587 + bgr[2]*0.114); //Y
+            yiq[1] = (double)(bgr[0]*0.596 - bgr[1]*0.275 - bgr[2]*0.321); //I
+            yiq[2] = (double)(bgr[0]*0.212 - bgr[1]*0.523 + bgr[2]*0.311); //Q
+            
+            yiq[0] = yiq[0] + 10;
+            
+            bgr[0] = (double)((yiq[0] + yiq[1]*0.956 + yiq[2]*0.62));// Ajusta R
+            bgr[1] = (double)((yiq[0] - yiq[1]*0.272 - yiq[2]*0.647)); //Ajusta G
+            bgr[2] = (double)((yiq[0] - yiq[1]*1.108 + yiq[2]*1.705)); //Ajusta B
+            
+            if(bgr[0] < 0)
+                bgr[0] = 0;
+            if(bgr[0] > 255)
+                bgr[0] = 255;
+            if(bgr[1] < 0)
+                bgr[1] = 0;
+            if(bgr[1] > 255)
+                bgr[1] = 255;
+            if(bgr[2] < 0)
+                bgr[2] = 0;
+            if(bgr[2] > 255)
+                bgr[2] = 255;
+            
+            imagem.at<Vec3b>(i,j).val[0] = bgr[0];
+            imagem.at<Vec3b>(i,j).val[1] = bgr[1];
+            imagem.at<Vec3b>(i,j).val[2] = bgr[2];
         }
     }
     return(imagem);
@@ -36,7 +56,7 @@ Mat mais_luminancia(Mat imagem){
 Mat menos_luminancia(Mat imagem){
     
     int largura, altura, i, j;
-    float yiq[3];
+    double yiq[3], bgr[3];
     largura = imagem.size().width;//pega a largura da imagem
     altura = imagem.size().height;//pega a altura da imagem
     
@@ -44,17 +64,38 @@ Mat menos_luminancia(Mat imagem){
     for(i=0;i<altura;i++){
         for(j=0;j<largura;j++){
             Vec3b bgrPixel = imagem.at<Vec3b>(i,j);//pega o valor em RGB de um pixel
-            yiq[0] = bgrPixel.val[0]*0.299 + bgrPixel.val[1]*0.587 + bgrPixel.val[2]*0.114; //Y
-            yiq[0] -= 15;
-            yiq[1] = bgrPixel.val[0]*0.596 - bgrPixel.val[1]*0.275 - bgrPixel.val[2]*0.321; //I
-            yiq[2] = bgrPixel.val[0]*0.212 - bgrPixel.val[1]*0.523 + bgrPixel.val[2]*0.311; //Q
             
-            imagem.at<Vec3b>(i,j).val[0] = yiq[0] + yiq[1]*0.956 + yiq[2]*0.620;// Ajusta R
-            if(imagem.at<Vec3b>(i,j).val[0] < 0)
-                imagem.at<Vec3b>(i,j).val[0] = 0;
-            if(imagem.at<Vec3b>(i,j).val[0] > 255)
-               imagem.at<Vec3b>(i,j).val[0] = 255;
+            bgr[0] = bgrPixel.val[0];
+            bgr[1] = bgrPixel.val[1];
+            bgr[2] = bgrPixel.val[2];
             
+            yiq[0] = (double)(bgr[0]*0.299 + bgr[1]*0.587 + bgr[2]*0.114); //Y
+            yiq[1] = (double)(bgr[0]*0.596 - bgr[1]*0.275 - bgr[2]*0.321); //I
+            yiq[2] = (double)(bgr[0]*0.212 - bgr[1]*0.523 + bgr[2]*0.311); //Q
+            
+            yiq[0] = yiq[0] - 10;
+            
+            bgr[0] = (double)((yiq[0] + yiq[1]*0.956 + yiq[2]*0.62));// Ajusta R
+            bgr[1] = (double)((yiq[0] - yiq[1]*0.272 - yiq[2]*0.647)); //Ajusta G
+            bgr[2] = (double)((yiq[0] - yiq[1]*1.108 + yiq[2]*1.705)); //Ajusta B
+            
+            
+            if(bgr[0] < 0)
+                bgr[0] = 0;
+            if(bgr[0] > 255)
+                bgr[0] = 255;
+            if(bgr[1] < 0)
+                bgr[1] = 0;
+            if(bgr[1] > 255)
+                bgr[1] = 255;
+            if(bgr[2] < 0)
+                bgr[2] = 0;
+            if(bgr[2] > 255)
+                bgr[2] = 255;
+            
+            imagem.at<Vec3b>(i,j).val[0] = bgr[0];
+            imagem.at<Vec3b>(i,j).val[1] = bgr[1];
+            imagem.at<Vec3b>(i,j).val[2] = bgr[2];
         }
     }
     return(imagem);

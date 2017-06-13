@@ -23,18 +23,13 @@ void equalizaHistograma(Mat image){
     for(i=0; i<height; i++){
         for(j=0; j<width; j++){
             Vec3b bgrPixel = image.at<Vec3b>(i,j);//pega o valor em RGB de um pixel
-            // Transforma RGB no intervalo entre 0 e 1
             bgr[0] = bgrPixel.val[0];
             bgr[1] = bgrPixel.val[1];
             bgr[2] = bgrPixel.val[2];
             
-            bgr[0] = (double)(bgr[0]/255);
-            bgr[1] = (double)(bgr[1]/255);
-            bgr[2] = (double)(bgr[2]/255);
-            
             yiq[0] = (double)(bgr[0]*0.299 + bgr[1]*0.587 + bgr[2]*0.114); //Y
             
-            yEqualize = (int)(yiq[0]*255);
+            yEqualize = (yiq[0]);
             histogram[yEqualize]++;
         }
     }
@@ -59,32 +54,30 @@ void equalizaHistograma(Mat image){
         for(j=0; j<width; j++){
             
             Vec3b bgrPixel = image.at<Vec3b>(i,j);//pega o valor em RGB de um pixel
-            // Transforma RGB no intervalo entre 0 e 1
+            // Transforma RGB
             bgr[0] = bgrPixel.val[0];
             bgr[1] = bgrPixel.val[1];
             bgr[2] = bgrPixel.val[2];
-            
-            bgr[0] = (double)(bgr[0]/255);
-            bgr[1] = (double)(bgr[1]/255);
-            bgr[2] = (double)(bgr[2]/255);
             
             yiq[0] = (double)(bgr[0]*0.299 + bgr[1]*0.587 + bgr[2]*0.114); //Y
             yiq[1] = (double)(bgr[0]*0.596 - bgr[1]*0.275 - bgr[2]*0.321); //I
             yiq[2] = (double)(bgr[0]*0.212 - bgr[1]*0.523 + bgr[2]*0.311); //Q
             
-            var = yiq[0] * 255;
+            var = yiq[0];
             
             // verifica qual o valor de cada canal do pixel
             for(posic=0; posic<256; posic++){
-                if(posic == (int)var)
+                if(posic == var)
                     break;
             }
             // atribui o valor do histograma equalizado
-            y = ((double)equalizedHistogram[posic]/255);
+            y = (equalizedHistogram[posic]);
             
-            bgr[0] = (double)((y + yiq[1]*0.956 + yiq[2]*0.62)*255);// Ajusta R
-            bgr[1] = (double)((y - yiq[1]*0.272 - yiq[2]*0.647)*255); //Ajusta G
-            bgr[2] = (double)((y - yiq[1]*1.108 + yiq[2]*1.705)*255); //Ajusta B
+            bgr[0] = (double)((y + yiq[1]*0.956 + yiq[2]*0.62));// Ajusta R
+            bgr[1] = (double)((y - yiq[1]*0.272 - yiq[2]*0.647)); //Ajusta G
+            bgr[2] = (double)((y - yiq[1]*1.108 + yiq[2]*1.705)); //Ajusta B
+            
+            //cout<<"r="<<bgr[0]<<" "<<"g="<<bgr[1]<<" "<<"b="<<bgr[2]<<" ";
             
             image.at<Vec3b>(i,j).val[0] = bgr[0];
             image.at<Vec3b>(i,j).val[1] = bgr[1];
@@ -93,13 +86,14 @@ void equalizaHistograma(Mat image){
     }
     
     // exibe a imagem
-    //imshow("Histograma Equalizado", image);
-    //waitKey(0);
+    imshow("Histograma Equalizado", image);
+    waitKey(0);
 }
 
 int main(void){
     
-    Mat image = imread("/Users/RodolfoSaldanha/Desktop/opencv-3.2.0/OpenCV/OpenCV/teste.png");
-    imshow("Histograma Equalizado", image);
+    Mat image = imread("/Users/RodolfoSaldanha/Desktop/opencv-3.2.0/OpenCV/OpenCV/teste2.jpg");
+    imshow("Original", image);
+    waitKey(0);
     equalizaHistograma(image);
 }

@@ -29,7 +29,7 @@ void equalizaHistograma(Mat image){
         }
     }
     
-    //equalizando o histograma da imagem
+    //equaliza o histograma da imagem
     for(i=0; i<256; i++){
         
         soma=0;
