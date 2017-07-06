@@ -79,5 +79,4 @@ int main(){
     transfFourier(gray_image);
     
     return 0;
-};n 0;
 };
